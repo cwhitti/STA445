@@ -1,0 +1,547 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={homework4},
+  pdfauthor={Claire Whittington},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{homework4}
+\author{Claire Whittington}
+\date{2023-10-16}
+
+\begin{document}
+\maketitle
+
+\hypertarget{exercise-1-7-pts.-in-exercise-1}{%
+\subsection{1) Exercise 1 -- 7 pts. In exercise
+1:}\label{exercise-1-7-pts.-in-exercise-1}}
+
+• Complete any 7 of the 9 scenarios from a -- i. Ensure the scenarios
+are clearly identifiable. • The string \textless- c() at the start of
+each chunk is where you will enter several strings to show that the 2
+lines of code underneath do what you say they are doing. • Your test
+string will need to include several expressions return a TRUE result and
+a FALSE result from the code. For example, if you state the code checks
+for the letter ``e'', your test string needs to have some expressions
+with the letter e , to return TRUE result, and some expressions without
+the letter e, to show the code returns FALSE when no ``e'' is found. •
+If you need help coming up with good test strings (particularly as the
+scenarios get more complex), please ask.
+
+CHEATSHEET
+
+=====================================
+
+Character Types Interpretation
+
+\begin{itemize}
+\item
+  abc Letters abc exactly
+\item
+  123 Digits 123 exactly
+\item
+  \d    Any Digit
+\item
+  \D    Any Non-digit character
+\item
+  \w    Any Alphanumeric character
+\item
+  \W    Any Non-alphanumeric character
+\item
+  \s    Any White space
+\item
+  \S    Any Non-white space character
+\item
+  . Any Character (The wildcard!)
+\item
+  \^{} Beginning of input string
+\item
+  \$ End of input string
+\end{itemize}
+
+Grouping Interpretation
+
+\begin{itemize}
+\item
+  {[}abc{]} Only a, b, or c
+\item
+  {[}\^{}abc{]} Not a, b, nor c
+\item
+  {[}a-z{]} Characters a to z
+\item
+  {[}A-Z{]} Characters A to Z
+\item
+  {[}0-9{]} Numbers 0 to 9
+\item
+  {[}a-zA-Z{]} Characters a to z or A to Z
+\item
+  () Capture Group
+\item
+  (a(bc)) Capture Sub-group
+\item
+  (abc\textbar def) Matches abc or def
+\end{itemize}
+
+Group Modifiers Interpretation
+
+\begin{itemize}
+\item
+  \begin{itemize}
+  \tightlist
+  \item
+    Zero or more repetitions of previous (greedy)
+  \end{itemize}
+\item
+  \begin{itemize}
+  \tightlist
+  \item
+    One or more repetitions of previous (greedy)
+  \end{itemize}
+\item
+  ? Previous group is optional
+\item
+  \{m\} m repetitions of the previous
+\item
+  \{m,n\} Between m and n repetitions of the previous
+\item
+  *? Zero or more repetitions of previous (not-greedy).
+
+  Obnoxiously the ? is modifying the modifier here and so has a
+  different interpretation than when modifying a group.
+\item
+  +? One or more repetitions of previous (not-greedy)
+\end{itemize}
+
+=====================================
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\tightlist
+\item
+  This regular expression scans ``strings'' variable and creates a
+  separate column which returns either F or F if there is an `a' in the
+  scanned string
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"January"}\NormalTok{,}\StringTok{"February"}\NormalTok{,}\StringTok{"March"}\NormalTok{,}\StringTok{"April"}\NormalTok{,}
+            \StringTok{"May"}\NormalTok{,}\StringTok{"June"}\NormalTok{,}\StringTok{"July"}\NormalTok{,}\StringTok{"August"}\NormalTok{,}
+            \StringTok{"September"}\NormalTok{,}\StringTok{"October"}\NormalTok{,}\StringTok{"November"}\NormalTok{)}
+
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       string result
+## 1    January   TRUE
+## 2   February   TRUE
+## 3      March   TRUE
+## 4      April  FALSE
+## 5        May   TRUE
+## 6       June  FALSE
+## 7       July  FALSE
+## 8     August  FALSE
+## 9  September  FALSE
+## 10   October  FALSE
+## 11  November  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  This regular expression evaluates each string in a vector of strings
+  for the string `ab'
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# This regular expression matches:  Insert your answer here...}
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Ryan"}\NormalTok{,}\StringTok{"Abby"}\NormalTok{,}\StringTok{"Gabriel"}\NormalTok{,}\StringTok{"Ben"}\NormalTok{,}\StringTok{"Olivia"}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}ab\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    string result
+## 1    Ryan  FALSE
+## 2    Abby  FALSE
+## 3 Gabriel   TRUE
+## 4     Ben  FALSE
+## 5  Olivia  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  This regular expression evaluates each string in a vector of strings
+  for the letters a OR b. Returns TRUE if a OR b is detected in a string
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"boat"}\NormalTok{,}\StringTok{"moat"}\NormalTok{,}\StringTok{"goat"}\NormalTok{,}\StringTok{"woke"}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}[ab]\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   string result
+## 1   boat   TRUE
+## 2   moat   TRUE
+## 3   goat   TRUE
+## 4   woke  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  This regular expression evaluates each string in a vector of strings
+  for the letters a AND b. Returns TRUE if a AND b is detected in a
+  string
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"boat"}\NormalTok{,}\StringTok{"moat"}\NormalTok{,}\StringTok{"goat"}\NormalTok{,}\StringTok{"woke"}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}\^{}[ab]\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   string result
+## 1   boat   TRUE
+## 2   moat  FALSE
+## 3   goat  FALSE
+## 4   woke  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  This regular expression evaluates each string in a vector of strings
+  for one or more digits (`//d') followed by a space (`//s') and either
+  `a' or `A' (`{[}aA{]}')
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"123 Apple"}\NormalTok{, }\StringTok{"456 a"}\NormalTok{, }\StringTok{"321Airplane"}\NormalTok{, }\StringTok{"789 B"}\NormalTok{, }\StringTok{"No numbers here"}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{s[aA]\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            string result
+## 1       123 Apple   TRUE
+## 2           456 a   TRUE
+## 3     321Airplane  FALSE
+## 4           789 B  FALSE
+## 5 No numbers here  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  This regular expression evaluates each string for one or more digits
+  (`//d') followed by zero or more whitespace characters (`//s*') and
+  then either `a' or `A' (`{[}aA{]}')
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"123 Apple"}\NormalTok{, }\StringTok{"456 a"}\NormalTok{, }\StringTok{"321Airplane"}\NormalTok{, }\StringTok{"789 B"}\NormalTok{, }\StringTok{"No numbers here"}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{s*[aA]\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            string result
+## 1       123 Apple   TRUE
+## 2           456 a   TRUE
+## 3     321Airplane   TRUE
+## 4           789 B  FALSE
+## 5 No numbers here  FALSE
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  This regular expression evaluates each string for Zero or more
+  repetitions of periods in a string
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{strings }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"abc"}\NormalTok{,}\StringTok{"abc."}\NormalTok{,}\StringTok{"abc.."}\NormalTok{, }\StringTok{"abc!!!"}\NormalTok{, }\StringTok{""}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+\FunctionTok{data.frame}\NormalTok{( }\AttributeTok{string =}\NormalTok{ strings ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{( }\AttributeTok{result =} \FunctionTok{str\_detect}\NormalTok{(string, }\StringTok{\textquotesingle{}.*\textquotesingle{}}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   string result
+## 1    abc   TRUE
+## 2   abc.   TRUE
+## 3  abc..   TRUE
+## 4 abc!!!   TRUE
+## 5          TRUE
+## 6   <NA>     NA
+\end{verbatim}
+
+\hypertarget{exercise-2-3-pts}{%
+\subsection{(2) Exercise 2 -- 3 pts}\label{exercise-2-3-pts}}
+
+The following file names were used in a camera trap study. The S number
+represents the site, P is the plot within a site, C is the camera number
+within the plot, the first string of numbers is the YearMonthDay and the
+second string of numbers is the HourMinuteSecond.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{file.names }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{( }\StringTok{\textquotesingle{}S123.P2.C10\_20120621\_213422.jpg\textquotesingle{}}\NormalTok{,}
+                 \StringTok{\textquotesingle{}S10.P1.C1\_20120622\_050148.jpg\textquotesingle{}}\NormalTok{,}
+                 \StringTok{\textquotesingle{}S187.P2.C2\_20120702\_023501.jpg\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Produce a data frame with columns corresponding to the site, plot,
+camera, year, month, day, hour, minute, and second for these three file
+names. So we want to produce code that will create the data frame:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Split the file names using a regular expression}
+\NormalTok{split\_data }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{( }\FunctionTok{str\_split\_fixed}\NormalTok{( file.names, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.|\_"}\NormalTok{, }\AttributeTok{n=}\DecValTok{6}\NormalTok{) )}
+
+\CommentTok{\#data.frame( string = strings ) \%\textgreater{}\%}
+\CommentTok{\#  mutate( result = str\_detect(string, \textquotesingle{}ab\textquotesingle{}) )}
+
+
+\FunctionTok{colnames}\NormalTok{(split\_data) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Site"}\NormalTok{, }\StringTok{"Plot"}\NormalTok{, }\StringTok{"Camera"}\NormalTok{, }\StringTok{"Date"}\NormalTok{, }\StringTok{"Time"}\NormalTok{, }\StringTok{"Format"}\NormalTok{)}
+
+\NormalTok{split\_data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Site Plot Camera     Date   Time Format
+## 1 S123   P2    C10 20120621 213422    jpg
+## 2  S10   P1     C1 20120622 050148    jpg
+## 3 S187   P2     C2 20120702 023501    jpg
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{split\_data }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}
+  \AttributeTok{Year =} \FunctionTok{str\_sub}\NormalTok{(Date,}\DecValTok{1}\NormalTok{,}\DecValTok{4}\NormalTok{),}
+  \AttributeTok{Month =} \FunctionTok{str\_sub}\NormalTok{(Date,}\DecValTok{5}\NormalTok{,}\DecValTok{6}\NormalTok{),}
+  \AttributeTok{Day =} \FunctionTok{str\_sub}\NormalTok{(Date,}\DecValTok{7}\NormalTok{,}\DecValTok{8}\NormalTok{),}
+  \AttributeTok{Hour =} \FunctionTok{str\_sub}\NormalTok{(Time,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{),}
+  \AttributeTok{Minute =} \FunctionTok{str\_sub}\NormalTok{(Time,}\DecValTok{3}\NormalTok{,}\DecValTok{4}\NormalTok{),}
+  \AttributeTok{Second =} \FunctionTok{str\_sub}\NormalTok{(Time,}\DecValTok{5}\NormalTok{,}\DecValTok{6}\NormalTok{),}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Site Plot Camera     Date   Time Format Year Month Day Hour Minute Second
+## 1 S123   P2    C10 20120621 213422    jpg 2012    06  21   21     34     22
+## 2  S10   P1     C1 20120622 050148    jpg 2012    06  22   05     01     48
+## 3 S187   P2     C2 20120702 023501    jpg 2012    07  02   02     35     01
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Exercise 3 -- 3 pts The full text from Lincoln's Gettysburg Address is
+  given below. Calculate the mean word length
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Gettysburg }\OtherTok{\textless{}{-}} \StringTok{\textquotesingle{}Four score and seven years ago our fathers brought forth on this }
+\StringTok{continent, a new nation, conceived in Liberty, and dedicated to the proposition }
+\StringTok{that all men are created equal.}
+
+\StringTok{Now we are engaged in a great civil war, testing whether that nation, or any }
+\StringTok{nation so conceived and so dedicated, can long endure. We are met on a great }
+\StringTok{battle{-}field of that war. We have come to dedicate a portion of that field, as }
+\StringTok{a final resting place for those who here gave their lives that that nation might }
+\StringTok{live. It is altogether fitting and proper that we should do this.}
+
+\StringTok{But, in a larger sense, we can not dedicate {-}{-} we can not consecrate {-}{-} we can }
+\StringTok{not hallow {-}{-} this ground. The brave men, living and dead, who struggled here, }
+\StringTok{have consecrated it, far above our poor power to add or detract. The world will }
+\StringTok{little note, nor long remember what we say here, but it can never forget what }
+\StringTok{they did here. It is for us the living, rather, to be dedicated here to the }
+\StringTok{unfinished work which they who fought here have thus far so nobly advanced. It }
+\StringTok{is rather for us to be here dedicated to the great task remaining before us {-}{-} }
+\StringTok{that from these honored dead we take increased devotion to that cause for which }
+\StringTok{they gave the last full measure of devotion {-}{-} that we here highly resolve that }
+\StringTok{these dead shall not have died in vain {-}{-} that this nation, under God, shall }
+\StringTok{have a new birth of freedom {-}{-} and that government of the people, by the people, }
+\StringTok{for the people, shall not perish from the earth.\textquotesingle{}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cleaned\_words\_1 }\OtherTok{\textless{}{-}} \FunctionTok{str\_split}\NormalTok{(Gettysburg, }\StringTok{"[\^{}a{-}zA{-}Z{-}]"}\NormalTok{   )}
+
+\NormalTok{valid\_words }\OtherTok{=} \DecValTok{0}
+\NormalTok{sum }\OtherTok{=} \DecValTok{0}
+
+\ControlFlowTok{for}\NormalTok{ ( index }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(cleaned\_words\_1[[}\DecValTok{1}\NormalTok{]]) )}
+\NormalTok{\{}
+\NormalTok{  word }\OtherTok{=}\NormalTok{ (cleaned\_words\_1[[}\DecValTok{1}\NormalTok{]][index])}
+  
+  \ControlFlowTok{if}\NormalTok{ ( ( }\FunctionTok{nchar}\NormalTok{(word) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\&\&}\NormalTok{ (word }\SpecialCharTok{!=} \StringTok{"{-}{-}"}\NormalTok{) )}
+\NormalTok{  \{}
+\NormalTok{    cleaned\_word }\OtherTok{\textless{}{-}} \FunctionTok{str\_replace}\NormalTok{(word, }\StringTok{"{-}"}\NormalTok{, }\StringTok{""}\NormalTok{)}
+\NormalTok{    sum }\OtherTok{=}\NormalTok{ sum }\SpecialCharTok{+} \FunctionTok{nchar}\NormalTok{(cleaned\_word)}
+\NormalTok{    valid\_words }\OtherTok{=}\NormalTok{ valid\_words }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  
+\NormalTok{\}}
+
+\NormalTok{avg\_len }\OtherTok{=}\NormalTok{ sum }\SpecialCharTok{/}\NormalTok{ valid\_words}
+\NormalTok{avg\_len}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4.239852
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Turned in by the due date/time -- 2 points.
+\end{enumerate}
+
+\end{document}

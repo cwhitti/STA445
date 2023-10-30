@@ -1,0 +1,73 @@
+---
+title: "homework6"
+author: "Claire Whittington"
+date: "2023-10-30"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# library(tidyr)   # for the gather/spread commands
+# library(dplyr)   # for the join stuff
+library(tidyverse) # dplyr, tidyr, ggplot2, etc.
+```
+
+Please complete:
+## (1) Exercise 1 – 3 pts
+
+A common task is to take a set of data that has multiple categorical variables and create a table of the number of cases for each combination. An introductory statistics textbook contains a dataset summarizing student surveys from several sections of an intro class. The two variables of interest for us are Gender and Year which are the students gender and year in college.
+
+a)
+```{r}
+Survey <- read.csv('https://www.lock5stat.com/datasets3e/StudentSurvey.csv', na.strings=c('',' ')) 
+head(Survey)
+```
+
+b) Using some combination of dplyr functions, produce a data set with eight rows that contains the number of responses for each gender:year combination. Make sure your table orders the Year variable in the correct order of First Year, Sophmore, Junior, and then Senior. You might want to look at the following functions: dplyr::count and dplyr::drop_na
+
+```{r}
+year_order <- c("FirstYear", "Sophomore", "Junior", "Senior")
+
+Responses <- Survey %>% 
+  filter(!is.na(Year)) %>%  # Remove rows with missing "Year"
+  mutate(Year = factor(Year, levels = year_order)) %>%  # Set correct order for "Year"
+  count(Sex, Year)
+
+Responses
+```
+
+Using tidyr commands, produce a table of the number of responses in the following form:
+
+Gender	First Year	Sophmore	Junior	Senior
+Female				
+Male
+
+```{r}
+
+pivot_table <- Survey %>%
+  group_by(Sex, Year) %>%
+  summarise(Count = n()) %>%
+  pivot_wider(names_from = Year, values_from = Count) 
+ 
+pivot_table
+```
+## (2) Exercise 2 – 2 pts
+From the book website, there is a .csv file of the daily maximum temperature in Flagstaff at the Pulliam Airport. The direction link is at: https://raw.githubusercontent.com/dereksonderegger/444/master/data-raw/FlagMaxTemp.csv
+
+```{r}
+data <- read.csv("~/Documents/FlagMaxTemp.csv")
+
+```
+
+## (3) Exercise 3 – Skip: Come back to it later if you are interested.
+
+## (4) Exercise 4 – 3 pts
+
+## (5) Exercise 5 – 5 pts Warning: This one will take a while.
+
+## (6) Exercise 6 – Skip: Come back to it later if you are interested.
+
+## (7) Turned in by the due date/time – 2 points. More than a week late = 0 points for the assignment.

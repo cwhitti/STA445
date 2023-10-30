@@ -1,0 +1,75 @@
+---
+title: "homework2"
+author: "Claire Whittington"
+date: "2023-10-06"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)      # Our usual data manipulation tools
+library(readxl)         # For reading MS Excel files
+library(googlesheets4)  # For reading Google Sheets
+```
+## (1) Exercise 1 – 5 pts. In exercise 1:
+• (1 pts) Import the correct sheet from Example_5, without modifying it in any way.
+```{r}
+# grab sheet 2 and put it into my.trees
+my.trees <- read_excel("~/Downloads/Example_5.xls", sheet = 2)
+my.trees
+```
+
+• ( ½ pt) How many blank columns were imported?
+
+- Two blank columns
+
+
+• ( ½ pt) Show the structure of the structure of the data using str(yourdataframe’sname)
+```{r}
+str(my.trees)
+```
+
+• (3 pts) Modify the data frame so that it only has 3 columns of 31 observations. Rename
+the columns to have the appropriate names of “Girth”, “Height,” and “Volume” if your
+step above did not automatically rename the columns.
+```{r}
+# remove rows 1,2,3 and cols 4 and 5
+cleaned_data <- my.trees[-c(0:4),-c(4,5)] 
+
+# rename cols
+colnames(cleaned_data)[1] <- "Girth"
+colnames(cleaned_data)[2] <- "Height"
+colnames(cleaned_data)[3] <- "Volume"
+
+# show structure summary
+str(cleaned_data)
+
+# show data
+head(cleaned_data)
+```
+• Your output should have the answer to question in the 2nd bulletin point, the structure of
+the data frame, and the final data frame. Include all code used to clean up the data frame.
+
+## (2) Exercise 2 – 4 pts. In exercise 2,
+• (1 pts) Import the correct sheet from Example_5, without modifying it in any way.
+```{r}
+my.cars <- read_excel("~/Downloads/Example_3.xls", sheet = 2)
+head(my.cars)
+```
+
+• (2 pts) Use View(yourdataframe’sname). Write 2 – 3 sentences contrasting what you saw
+in the Excel file and what the data frame looks like to R.
+```{r}
+head(my.cars)
+```
+In the excel file, I just see 12 columns all properly named with their 
+corresponding data. In R, there are 82 columns and like 1600 rows with NA values
+
+• (1 pt) Modify the data frame so that it only has the 12 columns x 33 rows of data.
+```{r}
+cleaned_data <- my.cars[1:33,1:12]
+cleaned_data
+```
+(3) Turned in by the due date/time – 1 point

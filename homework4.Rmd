@@ -1,0 +1,239 @@
+---
+title: "homework4"
+author: "Claire Whittington"
+date: "2023-10-16"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) 
+library(stringr)   # tidyverse string functions, not loaded with tidyverse 
+library(refinr)    # fuzzy string matching
+```
+## 1) Exercise 1 – 7 pts. In exercise 1:
+• Complete any 7 of the 9 scenarios from a – i. Ensure the scenarios are clearly identifiable.
+• The string <- c() at the start of each chunk is where you will enter several strings to show that the 2 lines of code
+underneath do what you say they are doing.
+• Your test string will need to include several expressions return a TRUE result and a FALSE result from the code.
+For example, if you state the code checks for the letter “e”, your test string needs to have some expressions with
+the letter e , to return TRUE result, and some expressions without the letter e, to show the code returns FALSE
+when no “e” is found.
+• If you need help coming up with good test strings (particularly as the scenarios get more complex), please ask.
+
+CHEATSHEET
+
+=====================================
+
+Character Types	Interpretation
+
+- abc	Letters abc exactly
+
+- 123	Digits 123 exactly
+
+- \d	Any Digit
+
+- \D	Any Non-digit character
+
+- \w	Any Alphanumeric character
+
+- \W	Any Non-alphanumeric character
+
+- \s	Any White space
+
+- \S	Any Non-white space character
+
+- .	Any Character (The wildcard!)
+
+- ^	Beginning of input string
+
+- $	End of input string
+
+
+Grouping	Interpretation
+
+- [abc]	Only a, b, or c
+
+- [^abc]	Not a, b, nor c
+
+- [a-z]	Characters a to z
+
+- [A-Z]	Characters A to Z
+
+- [0-9]	Numbers 0 to 9
+
+- [a-zA-Z]	Characters a to z or A to Z
+
+- ()	Capture Group
+
+- (a(bc))	Capture Sub-group
+
+- (abc|def)	Matches abc or def
+
+
+Group Modifiers	Interpretation
+
+- *	Zero or more repetitions of previous (greedy)
+
+- +	One or more repetitions of previous (greedy)
+
+- ?	Previous group is optional
+
+- {m}	m repetitions of the previous
+
+- {m,n}	Between m and n repetitions of the previous
+
+- *?	Zero or more repetitions of previous (not-greedy). 
+
+  Obnoxiously the ? is modifying the modifier here and so has a different interpretation than when modifying a     group.
+  
+- +?	One or more repetitions of previous (not-greedy)
+
+=====================================
+
+a) This regular expression scans "strings" variable and creates a separate column which returns either F or F if there is an 'a' in the scanned string
+```{r}
+
+strings <- c("January","February","March","April",
+            "May","June","July","August",
+            "September","October","November")
+
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, 'a') )
+```
+
+b) This regular expression evaluates each string in a vector of strings
+for the string 'ab'
+```{r}
+# This regular expression matches:  Insert your answer here...
+strings <- c("Ryan","Abby","Gabriel","Ben","Olivia")
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, 'ab') )
+```
+
+c) This regular expression evaluates each string in a vector of strings
+for the letters a OR b. Returns TRUE if a OR b is detected in a string
+```{r}
+strings <- c("boat","moat","goat","woke")
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, '[ab]') )
+```
+
+d) This regular expression evaluates each string in a vector of strings
+for the letters a AND b. Returns TRUE if a AND b is detected in a string
+```{r}
+strings <- c("boat","moat","goat","woke")
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, '^[ab]') )
+
+```
+
+e) This regular expression evaluates each string in a vector of strings for one 
+or more digits ('//d') followed by a space ('//s') and either 'a' or 'A' ('[aA]')
+```{r}
+strings <- c("123 Apple", "456 a", "321Airplane", "789 B", "No numbers here")
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, '\\d+\\s[aA]') )
+
+```
+
+f) This regular expression evaluates each string for one or more digits ('//d') followed by zero or more whitespace characters ('//s* ') and then either 'a' or 'A' ('[aA]')
+```{r}
+strings <- c("123 Apple", "456 a", "321Airplane", "789 B", "No numbers here")
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, '\\d+\\s*[aA]') )
+```
+
+g) This regular expression evaluates each string for Zero or more repetitions of 
+periods in a string
+```{r}
+strings <- c("abc","abc.","abc..", "abc!!!", "", NA)
+data.frame( string = strings ) %>%
+  mutate( result = str_detect(string, '.*') )
+```
+## (2) Exercise 2 – 3 pts
+The following file names were used in a camera trap study. The S number represents the site, P is the plot within a site, C is the camera number within the plot, the first string of numbers is the YearMonthDay and the second string of numbers is the HourMinuteSecond.
+
+```{r}
+file.names <- data.frame( 'S123.P2.C10_20120621_213422.jpg',
+                 'S10.P1.C1_20120622_050148.jpg',
+                 'S187.P2.C2_20120702_023501.jpg')
+```
+
+Produce a data frame with columns corresponding to the site, plot, camera, year, month, day, hour, minute, and second for these three file names. So we want to produce code that will create the data frame:
+
+```{r}
+# Split the file names using a regular expression
+split_data <- data.frame( str_split_fixed( file.names, "\\.|_", n=6) )
+
+#data.frame( string = strings ) %>%
+#  mutate( result = str_detect(string, 'ab') )
+
+
+colnames(split_data) <- c("Site", "Plot", "Camera", "Date", "Time", "Format")
+
+split_data
+
+split_data %>% mutate(
+  Year = str_sub(Date,1,4),
+  Month = str_sub(Date,5,6),
+  Day = str_sub(Date,7,8),
+  Hour = str_sub(Time,1,2),
+  Minute = str_sub(Time,3,4),
+  Second = str_sub(Time,5,6),
+)
+```
+
+(3) Exercise 3 – 3 pts
+The full text from Lincoln’s Gettysburg Address is given below. Calculate the mean word length
+```{r}
+Gettysburg <- 'Four score and seven years ago our fathers brought forth on this 
+continent, a new nation, conceived in Liberty, and dedicated to the proposition 
+that all men are created equal.
+
+Now we are engaged in a great civil war, testing whether that nation, or any 
+nation so conceived and so dedicated, can long endure. We are met on a great 
+battle-field of that war. We have come to dedicate a portion of that field, as 
+a final resting place for those who here gave their lives that that nation might 
+live. It is altogether fitting and proper that we should do this.
+
+But, in a larger sense, we can not dedicate -- we can not consecrate -- we can 
+not hallow -- this ground. The brave men, living and dead, who struggled here, 
+have consecrated it, far above our poor power to add or detract. The world will 
+little note, nor long remember what we say here, but it can never forget what 
+they did here. It is for us the living, rather, to be dedicated here to the 
+unfinished work which they who fought here have thus far so nobly advanced. It 
+is rather for us to be here dedicated to the great task remaining before us -- 
+that from these honored dead we take increased devotion to that cause for which 
+they gave the last full measure of devotion -- that we here highly resolve that 
+these dead shall not have died in vain -- that this nation, under God, shall 
+have a new birth of freedom -- and that government of the people, by the people, 
+for the people, shall not perish from the earth.'
+```
+
+```{r}
+
+cleaned_words_1 <- str_split(Gettysburg, "[^a-zA-Z-]"	)
+
+valid_words = 0
+sum = 0
+
+for ( index in 1:length(cleaned_words_1[[1]]) )
+{
+  word = (cleaned_words_1[[1]][index])
+  
+  if ( ( nchar(word) > 0) && (word != "--") )
+  {
+    cleaned_word <- str_replace(word, "-", "")
+    sum = sum + nchar(cleaned_word)
+    valid_words = valid_words + 1
+  }
+  
+}
+
+avg_len = sum / valid_words
+avg_len
+```
+(4) Turned in by the due date/time – 2 points.

@@ -1,0 +1,137 @@
+---
+title: "Midterm Test"
+author: "Claire Whittington"
+date: "`r format(Sys.time(),  '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Instructions
+
+## You may use the book, old homework, notes, and the internet during the exam.
+
+* **Change the header information within the RMD to contain your own name.**
+
+* **Answer all exercise prompts within the RMD.  All code must be shown.**
+
+* **Place answers into the blank R chunks given for each required response.**
+
+* **Compile the RMD into a PDF when finished.**
+
+* **Ensure all code is visible within the PDF.**
+
+* **Submit the PDF through our Canvas portal.**
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Look in the packages panel in RStudio and make sure the following packages have been installed.  If not, install those that are missing using the RStudio Tools->Install Packages menu.  Do not add an install.packages() command to this markdown file or you will not be able to knit the document.  If they are already installed, you may just run the following library commands.
+
+```{r warning=FALSE}
+
+suppressPackageStartupMessages({
+  library(tidyverse, quietly = TRUE)   # loading ggplot2, tidyr and dplyr
+  library(readxl, quietly = TRUE) 
+  library(stringr, quietly = TRUE)
+})
+```
+
+1.  (15 pts) Open and save the file Fellowship.xls on your computer.  Import the data into an R dataframe (or tibble) called Fellowship.  Make sure the resulting dataframe has 4 columns and 9 rows with the column names properly identified as in the original data.  There are three missing data elements identified in the excel file by the string "None".  Make sure these are stored properly in your data frame.
+Show me the resulting dataframe.
+
+
+
+```{r}
+Fellowship <- read_excel("~/Downloads/Fellowship.xls", sheet = 2, skip = 4)
+Fellowship
+```
+
+2.  (15 pts) Return the fourth row of the fellowship dataset.  
+Return the third column of the fellowship dataset.  
+Return the third entry in the fourth column of the fellowship dataset.
+
+```{r}
+row_four = Fellowship[4,]
+row_four
+
+third_col = Fellowship[,3]
+third_col
+
+third_entry = Fellowship[3,4]
+third_entry
+```
+
+
+3.  (15 pts) Pippin is identified as a "Halfling".  While this is true, it is inconsistent with how the other hobbits are identified.  Use R code to change Pippin's Species from "Halfling" to "Hobbit".  
+Show me the resulting dataframe.
+
+```{r}
+Fellowship[7,3] = "Hobbit"
+Fellowship
+```
+
+4.  (20 pts) Use R code to add a numeric column of heights in inches to the data frame (remember the function as.numeric() is used to convert a string to a number).  For those of you not familiar with the U.S archaic system of measurement:  There are 12 inches in a foot.  So if the height is 7ft3in, you would calculate 7*12+3 = 87 to get the number of inches.  Show me the resulting data frame.
+
+```{r}
+
+# mutate a new column
+Fellowship = Fellowship %>% mutate(Feet = 
+                                     as.numeric(
+                                       str_extract(str_extract(
+                                                      Height, "\\d+ft"), 
+                                                                    "\\d") ),
+                                    Inches_On_Foot =
+                                      as.numeric(
+                                       str_extract(str_extract(
+                                                      Height, "\\d+in"), 
+                                                                    "\\d+") ),
+                                   
+                                    Total_Height_In = (Feet * 12) + Inches_On_Foot
+                                  )
+
+Fellowship
+```
+
+5.  (15 pts) Use R to calculate the average height in inches for the hobbits only.
+
+```{r}
+Hobbits = Fellowship[Fellowship$Species == "Hobbit",]
+Hobbit_Heights = mean(Hobbits$Total_Height_In)
+Hobbit_Heights
+```
+
+
+
+6.  (20 pts) Create a function called count3s to examine any input vector of integers and counts the number of 3's present.  Test your function by running count3s(c(3,5,6,3,7,8,21,56,3,7,10,3)) and count3s(c(3,6,9,3,6,6,6))  (you should get 4 and 2 as a result)
+
+```{r}
+
+# Define function
+count3s <- function(vector)
+{
+  # Initialize variables
+  count_3s = 0
+  
+  # Loop through items in vector
+  for (index in 1:length(vector))
+  {
+    # find a 3
+    if (vector[index] == 3)
+    {
+      # increase 3 count
+      count_3s = count_3s + 1
+    }
+  }
+  # print count of 3s
+  print(count_3s)
+}
+
+count3s(c(3,5,6,3,7,8,21,56,3,7,10,3))
+count3s(c(3,6,9,3,6,6,6))
+
+```
+
+
+

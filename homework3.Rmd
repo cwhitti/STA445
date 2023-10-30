@@ -1,0 +1,213 @@
+---
+title: "homework3"
+author: "Claire Whittington"
+date: "2023-10-09"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## (1) 1 – 6 pts. In exercise 1:
+Write a function that calculates the density function of a Uniform continuous variable on the interval  
+(a,b)
+
+a) Write your function without regard for it working with vectors of data. Demonstrate that it works by calling the function with a three times, once where  
+x<a , once where  a<x<b , and finally once where  b<x .
+
+• part a must be done without using R’s pre-built uniform commands.
+```{r}
+duniform <- function(x,a,b) 
+{
+  if ( ( a <= x) & (x <= b))
+  {
+    return ( 1 / (b - a) )
+  }
+  return( 0 )
+}
+
+duniform(10,100,13) # x < a
+duniform(10,3,15)   # a < x < b
+duniform(10,3,2)   # b < x
+```
+
+b: Next we force our function to work correctly for a vector of x values. Modify your function in part (a) so that the core logic is inside a for statement and the loop moves through each element of x in succession. Your function should look something like this:
+
+• in part b, the pseudo-code from “if ... else” represents the code you wrote in part a. You may not have written an ifelse statement for part a.
+• in part b, you should write the “outside” loop as a for loop. You will write the “outside” loop as an ifelse statement 
+```{r}
+duniform <- function(x, a, b)
+  {
+  output <- NULL
+  
+  for( i in 1:length(x) )
+    { 
+    if( (x[i] >= a) & (x[i] <=b) ) # Set the for loop to look at each element of x
+      {  
+      output[i] = 1 / (b - a) 
+      }
+    else
+      {
+      output[i] = 0 
+      }
+    }
+    return(output)
+  }
+
+data.frame( x=seq(-1, 12, by=.001) ) %>%
+  mutate( y = duniform(x, 4, 8) ) %>%
+  ggplot( aes(x=x, y=y) ) +
+  geom_step()
+```
+
+c: Install the R package microbenchmark. We will use this to discover the average duration your function takes.
+```{r}
+microbenchmark::microbenchmark( duniform( seq(-4,12,by=.0001), 4, 8), times=100)
+```
+
+d - Instead of using a for loop, it might have been easier to use an ifelse() command. Rewrite your function to avoid the for loop and just use an ifelse() command. Verify that your function works correctly by producing a plot, and also run the microbenchmark(). Which version of your function was easier to write? Which ran faster?
+• In part d – include the plot again, and don’t forget to answer the last two questions.
+
+```{r}
+duniform <- function(x, a, b)
+  {
+  return( ifelse( (x>=a & x<= b), 1 / (b - a) , 0 ) )
+  }
+
+data.frame( x=seq(-1, 12, by=.001) ) %>%
+  mutate( y = duniform(x, 4, 8) ) %>%
+  ggplot( aes(x=x, y=y) ) +
+  geom_step()
+
+microbenchmark::microbenchmark( duniform( seq(-4,12,by=.0001), 4, 8), times=100)
+
+#Which version of your function was easier to write? 
+## The second because it only required one line of code 
+
+#Which ran faster?
+## Function 1 median time: ~104.5
+## Function 2 median time: ~10.1
+## Function 2 ran 10x faster
+```
+## (2) 3 – 2 pts
+A common data processing step is to standardize numeric variables by subtracting the mean and dividing by the standard deviation. Mathematically, the standardized value is defined as where x bar is the mean and s is the standard deviation. Create a function that takes an input vector of numerical values and produces an output vector of the standardized values. We will then apply this function to each numeric column in a data frame using the dplyr::across() or the dplyr::mutate_if() commands. This is often done in model algorithms that rely on numerical optimization methods to find a solution. By keeping the scales of different predictor covariates the same, the numerical optimization routines generally work better.
+
+• In exercise 3, your primary task is to write a function that returns the z-scores (this is the standardization part) for a
+vector of numbers.
+• You may use the prebuilt R functions for computing a mean and standard deviation of a sample of numbers.
+• After you create your own z-score function, use it to return the z-scores of sample values 1, 2, 3.
+• After you create your own z-score function, use it to try to return the z-scores of sample value 5. What was the
+output? Why do you think that is?
+• You do not need to graph the iris data set.
+```{r}
+standardize <- function(x)
+  {
+  xbar = mean(x)
+  s = sd(x)
+  z = NULL
+  
+  for (index in 1:length(x) )
+   {
+    z[index] = (x[index] - xbar) / s
+   }
+  
+  return(z)
+  }
+
+
+# Standardize all of the numeric columns
+# across() selects columns and applies a function to them
+# there column select requires a dplyr column select command such
+# as starts_with(), contains(), or where().  The where() command
+# allows us to use some logical function on the column to decide
+# if the function should be applied or not.
+scores = standardize(c(-10,0,10))
+scores
+```
+
+##(3) 4 – 3 pts
+In this example, we’ll write a function that will output a vector of the first n terms in the child’s game Fizz Buzz. The goal is to count as high as you can, but for any number evenly divisible by 3, substitute “Fizz” and any number evenly divisible by 5, substitute “Buzz,” and if it is divisible by both, substitute “Fizz Buzz.” So the sequence will look like 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, … Hint: The paste() function will squish strings together, the remainder operator is %% where it is used as 9 %% 3 = 0. This problem was inspired by a wonderful YouTube video that describes how to write an appropriate loop to do this in JavaScript, but it should be easy enough to interpret what to do in R. I encourage you to try to write your function first before watching the video.
+• There are a lot of scenarios that you can test your function on. Just write a function that works for a vector of
+numbers 1 – 100.
+• You can ignore the part about pasting strings together.
+• The function you write will goes where # Stuff in Here! is.
+```{r}
+fizzbuzz <- function(x)
+{
+  
+  string = NULL
+  
+  for( index in 1:length(x) )
+  {
+    if ( (x[index] %% 3 == 0) && (x[index] %% 5 == 0) )
+    {
+      print("Fizz Buzz")
+    }
+    
+    else if (x[index] %% 3 == 0)
+    {
+      print("Fizz")
+    }
+    
+    else if ( x[index] %% 5 == 0 )
+    {
+      print("Buzz")
+    }
+    else
+    {
+      print(x[index])
+    }
+  }
+}
+
+fizzbuzz(c(1:100))
+```
+
+## (4) 5 – 3 pts
+The dplyr::fill() function takes a table column that has missing values and fills them with the most recent non-missing value. For this problem, we will create our own function to do the same.
+• Your job is to write a function, called myFill, that will take a vector of numbers, some of which are missing, like
+in “test.vector”, and fill in the blanks with the most-recent non-blank value.
+• The function you write will go where # Stuff in Here! Is.
+• After you write the function, test it with the values in “test.vector.”
+
+```{r}
+#' Fill in missing values in a vector with the previous value.
+#' 
+#' @parm x An input vector with missing values
+#' @result The input vector with NA values filled in.
+myFill <- function(x)
+{
+  recent_val = NULL
+  
+  for (index in 1:length(x))
+  {
+    
+    if ( is.na(x[index]) )
+    {
+      x[index] <- recent_val
+    }
+    
+    else
+    {
+      recent_val <- x[index]
+    }
+    
+  }
+  print(x)
+}
+
+test.vector <- c('A',NA,NA, 'B','C', NA,NA,NA)
+myFill(test.vector)
+```
+
+## (5) 6 – 
+If you finish early on Friday of week 7 or before, please continue to exercise 6. +1 extra if problem 6 is submitted with Assignment 3 before the end of Friday’s class.
+
+
+## (6) Turned in by the due date/time – 1 point.
+Separate the results of each exercise with ## Exercise n, where n is the exercise number.
+Due Date: Monday of week 8 before 9:10 AM (Arizona)

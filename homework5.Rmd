@@ -1,0 +1,201 @@
+---
+title: "homework5"
+author: "Claire Whittington"
+date: "2023-10-23"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+```
+
+## (1) Exercise 1 – 3 pts
+Convert the following to date or date/time objects.
+
+- September 13, 2010.
+```{r}
+mdy("September 13, 2010")
+```
+
+- Sept 13, 2010.
+```{r}
+str = "Sept 13, 2010"
+modified_str = paste(str_sub(str, 1, 3) , str_sub(str, 6) ) 
+# modified_str
+mdy( modified_str )
+          
+```
+
+- Sep 13, 2010.
+```{r}
+mdy("Sep 13, 2010")
+```
+
+- S 13, 2010. Comment on the month abbreviation needs.
+
+COMMENT: I had to add "ep" after "S" since R prefers either 3 letters abbreviations
+or the full word
+```{r}
+str = "S 13, 2010"
+modified_str = paste( paste( str_sub(str, 1, 1), "ep", sep =""),
+                      str_sub(str, 3) )
+#modified_str
+mdy(modified_str)
+```
+- 07-Dec-1941.
+```{r}
+str = "07-Dec-1941"
+dmy(str)
+```
+
+- 1 - 5 - 1998. Comment on why you might be wrong.
+
+COMMENT: This format could either mean "January 5th, 1998" or "May 1st, 1998"
+depending on the user's intentions
+```{r}
+str = "1-5-1998"
+dmy(str)
+```
+
+- 21-5-1998. Comment on why you know you are correct.
+
+COMMENT: I know the format is day, month, year because there is no 21st month
+```{r}
+str = "21-5-1998"
+dmy(str)
+```
+
+- 2020-May-5 10:30 am
+```{r}
+str = "2020-May-5 10:30 am"
+ymd_hm(str)
+```
+
+- 2020-May-5 10:30 am PDT (ex Seattle)
+```{r}
+str = "2020-May-5 10:30 am PDT"
+ymd_hm( str_sub(str, 1, 19), tz = "US/Pacific" )
+```
+
+- 2020-May-5 10:30 am AST (ex Puerto Rico)
+```{r}
+str = "2020-May-5 10:30 am AST"
+ymd_hm( str_sub(str, 1, 19), tz = "America/Glace_Bay" )
+```
+
+## (2) Exercise 2 – 2 pts
+Using just your date of birth (ex Sep 7, 1998) and today’s date calculate the following Write your code in a manner that the code will work on any date after you were born.:
+
+```{r}
+str = "Nov 16, 2002"
+birthday = mdy(str)
+birthday
+```
+- Calculate the date of your 64th birthday.
+```{r}
+birthday + years(64)
+```
+
+- Calculate your current age (in years). Hint: Check your age is calculated correctly if your birthday was yesterday and if it were tomorrow!
+```{r}
+today = lubridate::today()
+
+current_age = as.period(birthday %--% today)
+current_age
+```
+
+- Using your result in part (b), calculate the date of your next birthday.
+```{r}
+next_birthday = birthday + years( year(current_age) ) + years( 1 ) 
+next_birthday
+```
+
+- The number of days until your next birthday.
+```{r}
+days_till_birthday = next_birthday - today
+days_till_birthday
+```
+
+- The number of months and days until your next birthday.
+```{r}
+as.period(days_till_birthday)
+```
+
+## (3) Exercise 3 – 1 pt (show the code that answers the question, as well as the answer to the question).
+Suppose you have arranged for a phone call to be at 3 pm on May 8, 2015 at Arizona time. However, the recipient will be in Auckland, NZ. What time will it be there?
+
+ANSWER: It will be 10:00am in Auckland
+```{r}
+str <- "2015-May-8 3:00 pm MST"
+arizona_time <- ymd_hm(str_sub(str, 1, 19), tz = "US/Arizona")
+auckland_time <- with_tz(arizona_time, tzone = "Pacific/Auckland")
+
+auckland_time
+```
+
+## (4) Exercise 4 – 3 pts
+```{r}
+data.df = read.csv("~/Downloads/Pulliam_Airport_Weather_Station.csv")
+tail(data.df)
+attach(data.df)
+```
+
+```{r}
+end = as.Date(max(DATE))
+start = end - dyears(5)
+
+period_5y_data = data.df[DATE >= start & DATE <= end,]
+head(period_5y_data)
+ggplot(data = period_5y_data, aes(x = DATE, y = TMAX)) + geom_point() 
+```
+
+## (5) Exercise 5 – 4 pts. Note there are 2 additional questions in part b.
+
+It turns out there is some interesting periodicity regarding the number of births on particular days of the year
+
+a) Using the mosaicData package, load the data set Births78 which records the number of children born on each day in the United States in 1978. Because this problem is intended to show how to calculate the information using the date, remove all the columns except date and births.
+
+```{r}
+library(mosaicData)
+data(Births78)
+attach(Births78)
+head(Births78)
+
+birth_data <- select(Births78, date, births)
+head(birth_data)
+```
+
+b) Graph the number of births vs the date with date on the x-axis. What stands out to you? Why do you think we have this trend?
+
+```{r}
+P <- ggplot( birth_data, aes( x = date, y = births)) + geom_point()
+P
+```
+
+Immediately I notice that there are more popular days and less popular days to have babies.
+Maybe Saturdays and Sundays are more popular because people don't have work?
+
+
+c) To test your assumption, we need to figure out the what day of the week each observation is. Use dplyr::mutate to add a new column named dow that is the day of the week (Monday, Tuesday, etc). This calculation will involve some function in the lubridate package and the date column.
+```{r}
+birth_data <- birth_data %>%
+  mutate(dow = wday(date, label = TRUE, abbr = FALSE))
+head(birth_data)
+```
+
+d) Plot the data with the point color being determined by the day of the week variable.
+```{r}
+ggplot(birth_data, aes(x=date, y=births, color = dow)) + geom_point()
+
+```
+
+My assumption was wrong - Weekdays are more popular to have babies.
+Perhaps this is because people don't assume hospitals are open on weekends?
+Or maybe people want off work. Curious!
+
+## (6) Turned in by the due date/time – 2 points.
