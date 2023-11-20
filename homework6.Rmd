@@ -59,15 +59,253 @@ From the book website, there is a .csv file of the daily maximum temperature in 
 
 ```{r}
 data <- read.csv("~/Documents/FlagMaxTemp.csv")
-
+head(data)
 ```
 
+a)
+Create a line graph that gives the daily maximum temperature for 2005. Make sure the x-axis is a date and covers the whole year.
+```{r}
+
+max_temps <- data %>% 
+  filter(Year == 2005) %>%  
+  mutate ( HighestTemp =   select(., X1:X31) %>% apply(1, max, na.rm=TRUE) )
+max_temps
+
+ggplot(max_temps, aes(x=Month, y=HighestTemp)) + geom_line()
+```
+b) Create a line graph that gives the monthly average maximum temperature for 2013 - 2015. Again the x-axis should be the date and the axis spans 3 years
+```{r}
+ meantemps <- data %>% 
+  filter(Year >= 2013) %>%  
+  filter(Year <= 2015) %>%
+  mutate ( MeanTemp =   select(., X1:X31) %>% 
+             apply(1, mean, na.rm=TRUE) )
+meantemps
+
+ggplot(meantemps, aes(x = Month, y = MeanTemp, color = factor(Year))) + geom_line()
+```
 ## (3) Exercise 3 – Skip: Come back to it later if you are interested.
 
 ## (4) Exercise 4 – 3 pts
+```{r}
+A <- tribble(
+  ~Name, ~Car,
+  'Alice', 'Ford F150',
+  'Bob',   'Tesla Model III',
+  'Charlie', 'VW Bug')
 
+B <- tribble(
+  ~First.Name, ~Pet,
+  'Bob',  'Cat',
+  'Charlie', 'Dog',
+  'Alice', 'Rabbit')
+```
+
+a)Squish the data frames together to generate a data set with three rows and three columns. 
+Do two ways: first using cbind and then using one of the dplyr join commands.
+```{r}
+AB = cbind(A, B)
+AB
+AB = inner_join(A, B, by=c("Name" = "First.Name"))
+AB
+```
+
+b) It turns out that Alice also has a pet guinea pig. Add another row to the B data set.
+Do this using either the base function rbind, or either of the dplyr functions 
+add_row or bind_rows.
+```{r}
+df1 <- tibble( First.Name="Alice", Pet = "Guinea Pig" )
+B <- rbind(B, df1)
+B
+
+```
+
+c) Squish the A and B data sets together to generate a data set with four rows and 
+three columns. Do this two ways: first using cbind and then using one of the 
+dplyr join commands. Which was easier to program? Which is more likely to 
+have an error.
+
+COMMENTS: cbind was much easier to program since I didn't have to think about
+which join command to use, but it is also more likely to throw an error becuase
+of the mismatched dataframe sizes
+```{r}
+#cbind(A,B)
+
+# Error in data.frame(..., check.names = FALSE) : 
+  #arguments imply differing number of rows: 3, 4
+```
+```{r}
+full_join(A, B, by=c("Name"="First.Name"))
+```
 ## (5) Exercise 5 – 5 pts Warning: This one will take a while.
+Data table joins are extremely common because effective database design almost always involves having multiple tables for different types of objects. To illustrate both the table joins and the usefulness of multiple tables we will develop a set of data frames that will represent a credit card company’s customer data base. We will have tables for Customers, Retailers, Cards, and Transactions. Below is code that will create and populate these tables.
 
 ## (6) Exercise 6 – Skip: Come back to it later if you are interested.
+```{r}
+Customers <- tribble(
+  ~PersonID, ~Name, ~Street, ~City, ~State,
+  1, 'Derek Sonderegger',  '231 River Run', 'Flagstaff', 'AZ',
+  2, 'Aubrey Sonderegger', '231 River Run', 'Flagstaff', 'AZ',
+  3, 'Robert Buscaglia', '754 Forest Heights', 'Flagstaff', 'AZ',
+  4, 'Roy St Laurent', '845 Elk View', 'Flagstaff', 'AZ')
 
+Retailers <- tribble(
+  ~RetailID, ~Name, ~Street, ~City, ~State,
+  1, 'Kickstand Kafe', '719 N Humphreys St', 'Flagstaff', 'AZ',
+  2, 'MartAnnes', '112 E Route 66', 'Flagstaff', 'AZ',
+  3, 'REI', '323 S Windsor Ln', 'Flagstaff', 'AZ' )
+
+Cards <- tribble(
+  ~CardID, ~PersonID, ~Issue_DateTime, ~Exp_DateTime,
+  '9876768717278723',  1,  '2019-9-20 0:00:00', '2022-9-20 0:00:00',
+  '5628927579821287',  2,  '2019-9-20 0:00:00', '2022-9-20 0:00:00',
+  '7295825498122734',  3,  '2019-9-28 0:00:00', '2022-9-28 0:00:00',
+  '8723768965231926',  4,  '2019-9-30 0:00:00', '2022-9-30 0:00:00' ) 
+
+Transactions <- tribble(
+  ~CardID, ~RetailID, ~DateTime, ~Amount,
+  '9876768717278723', 1, '2019-10-1 8:31:23',    5.68,
+  '7295825498122734', 2, '2019-10-1 12:45:45',  25.67,
+  '9876768717278723', 1, '2019-10-2 8:26:31',    5.68,
+  '9876768717278723', 1, '2019-10-2 8:30:09',    9.23,
+  '5628927579821287', 3, '2019-10-5 18:58:57',  68.54,
+  '7295825498122734', 2, '2019-10-5 12:39:26',  31.84,
+  '8723768965231926', 2, '2019-10-10 19:02:20', 42.83) 
+
+Cards <- Cards %>% 
+  mutate( Issue_DateTime = lubridate::ymd_hms(Issue_DateTime),
+          Exp_DateTime   = lubridate::ymd_hms(Exp_DateTime) )
+Transactions <- Transactions %>% 
+  mutate( DateTime = lubridate::ymd_hms(DateTime))
+```
+
+a. Create a table that gives the credit card statement for Derek. It should give all the transactions, the amounts, and the store name. Write your code as if the only initial information you have is the customer’s name. Hint: Do a bunch of table joins, and then filter for the desired customer name. To be efficient, do the filtering first and then do the table joins.
+```{r}
+DerekCust <- Customers %>% 
+  filter(Name == "Derek Sonderegger")
+
+DerekCard <- Cards %>% 
+  filter(PersonID == DerekCust$PersonID)
+
+DerekTrans <- Transactions %>%
+  filter(CardID == DerekCard$CardID)
+
+DerekStores <- Retailers %>%
+  filter( RetailID == DerekTrans$RetailID)
+
+DerekData <- full_join(DerekCust, DerekCard)
+DerekData <- full_join(DerekData, DerekTrans)
+DerekData <- full_join(DerekData, DerekStores, by = c("RetailID"))
+
+print(DerekData)
+```
+b. Aubrey has lost her credit card on Oct 15, 2019. Close her credit card at 4:28:21 PM and issue her a new credit card in the Cards table. Hint: Using the Aubrey’s name, get necessary CardID and PersonID and save those as cardID and personID. Then update the Cards table row that corresponds to the cardID so that the expiration date is set to the time that the card is closed. Then insert a new row with the personID for Aubrey and a new CardID number that you make up.
+```{r}
+Cards <- tribble(
+  ~CardID, ~PersonID, ~Issue_DateTime, ~Exp_DateTime,
+  '9876768717278723',  1,  '2019-9-20 0:00:00', '2022-9-20 0:00:00',
+  '5628927579821287',  2,  '2019-9-20 0:00:00', '2022-9-20 0:00:00',
+  '7295825498122734',  3,  '2019-9-28 0:00:00', '2022-9-28 0:00:00',
+  '8723768965231926',  4,  '2019-9-30 0:00:00', '2022-9-30 0:00:00' ) 
+
+Cards <- Cards %>% 
+  mutate( Issue_DateTime = lubridate::ymd_hms(Issue_DateTime),
+          Exp_DateTime   = lubridate::ymd_hms(Exp_DateTime) )
+
+personID <- Customers %>%
+  filter(Name == "Aubrey Sonderegger") %>%
+  pull(PersonID)
+
+cardID <- Cards %>%
+  filter(PersonID == personID) %>%
+  pull(CardID)
+
+cardID
+
+close_time <- ymd_hms('2019-10-15 16:28:21')
+
+Cards <- Cards %>%
+  mutate(Exp_DateTime = ifelse(CardID == cardID, close_time, Exp_DateTime)) %>% 
+  mutate( Issue_DateTime = as.POSIXct(Issue_DateTime),
+          Exp_DateTime   = as.POSIXct(Exp_DateTime) )
+
+newCard <- tribble(
+  ~CardID, ~PersonID, ~Issue_DateTime, ~Exp_DateTime,
+  '7330969145139233',  personID,  '2023-11-03 0:00:00', '2026-11-03 0:00:00') %>% 
+  mutate( Issue_DateTime = lubridate::ymd_hms(Issue_DateTime),
+          Exp_DateTime   = lubridate::ymd_hms(Exp_DateTime) )
+
+Cards <- bind_rows(Cards, newCard)
+
+Cards
+```
+
+c. Aubrey is using her new card at Kickstand Kafe on Oct 16, 2019 at 2:30:21 PM for coffee with a charge of $4.98. Generate a new transaction for this action. Hint: create temporary variables card,retailid,datetime, and amount that contain the information for this transaction and then write your code to use those. This way in the next question you can just use the same code but modify the temporary variables. Alternatively, you could write a function that takes in these four values and manipulates the tables in the GLOBAL environment using the <<- command to assign a result to a variable defined in the global environment. The reason this is OK is that in a real situation, these data would be stored in a database and we would expect the function to update that database.
+
+```{r}
+cardID <- '7330969145139233'
+retailid <- 1
+datetime <- "2019-10-16 14:30:21"
+amount <- 4.98
+  
+newTransaction <- tribble(
+  ~CardID, ~RetailID, ~DateTime, ~Amount,
+  cardID, retailid, datetime, amount ) %>% 
+  mutate( DateTime = lubridate::ymd_hms(DateTime))
+
+Transactions <- rbind(Transactions, newTransaction)
+Transactions
+```
+
+d. On Oct 17, 2019, some nefarious person is trying to use her OLD credit card at REI. Make sure your code in part (c) first checks to see if the credit card is active before creating a new transaction. Using the same code, verify that the nefarious transaction at REI is denied. Hint: your check ought to look something like this
+```{r}
+card <- '5628927579821287'
+retailid <- 2
+datetime <- ymd_hms('2019-10-16 14:30:21')
+amount <- 4.98
+
+# If the card is currently valid, this should return exactly 1 row.
+Valid_Cards <- Cards %>% 
+  filter(CardID == card, Issue_DateTime <= datetime, datetime <= Exp_DateTime)
+
+# If the transaction is valid, insert the transaction into the table
+if( nrow(Valid_Cards) == 1){
+  newTransaction <- tribble(
+  ~CardID, ~RetailID, ~DateTime, ~Amount,
+  cardID, retailid, datetime, amount ) %>% 
+  mutate( DateTime = lubridate::ymd_hms(DateTime))
+  
+  Transactions <- rbind(Transactions, newTransaction)
+}else{
+  print('Card Denied')
+}
+```
+
+Generate a table that gives the credit card statement for Aubrey. It should give all the transactions, amounts, and retailer name for both credit cards she had during this period.
+
+```{r}
+name = "Aubrey Sonderegger"
+
+Cust <- Customers %>% 
+  filter(Name == name)
+
+CustCard <- Cards %>% 
+  filter(PersonID == Cust$PersonID)
+CustCard
+CustTrans <- Transactions %>%
+  filter(CardID == CustCard$CardID)
+
+CustTrans
+
+CustStores <- Retailers %>%
+  filter( RetailID == CustTrans$RetailID)
+
+CustStores
+
+CustData <- full_join(Cust, CustCard)
+CustData <- full_join(CustData, CustTrans)
+CustData <- full_join(CustData, CustStores, by = c("RetailID"))
+
+print(CustData)
+```
 ## (7) Turned in by the due date/time – 2 points. More than a week late = 0 points for the assignment.

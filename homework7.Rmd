@@ -1,0 +1,143 @@
+---
+title: "homework7"
+author: "Claire Whittington"
+date: "2023-11-06"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)   # loading ggplot2 and dplyr
+library(patchwork)   # arranging multiple graphs into 1 figure
+library(viridis)     # The viridis color schemes
+library(latex2exp)   # For plotting math notation
+library(plotly)     # for interactive hover-text
+library(faraway)
+```
+
+Please complete:
+
+## (1) Exercise 1 – 6 pts
+
+The infmort data set from the package faraway gives the infant mortality rate for a variety of countries. The information is relatively out of date (from 1970s?), but will be fun to graph. 
+
+Visualize the data using by creating scatter plots of mortality vs income while faceting using region and setting color by oil export status. 
+
+Utilize a log10 transformation for both mortality and income axes. 
+
+This can be done either by doing the transformation inside the aes() command or by utilizing the scale_x_log10() or scale_y_log10() layers. 
+
+The critical difference is if the scales are on the original vs log transformed scale. Experiment with both and see which you prefer.
+```{r}
+head(infmort)
+```
+
+a ) The rownames() of the table gives the country names and you should create a new column that contains the country names. *rownames
+```{r}
+infmort <- infmort %>% 
+            mutate ( country = rownames(infmort) )
+head(infmort)
+```
+
+b) Create scatter plots with the log10() transformation inside the aes() command.
+```{r}
+ggplot( infmort, aes( x = log10(mortality), y = log10(income), color = oil)) +
+  geom_point(size = 3) +
+  facet_wrap(~region)
+```
+
+c) Create the scatter plots using the scale_x_log10() and scale_y_log10(). Set the major and minor breaks to be useful and aesthetically pleasing. Comment on which version you find easier to read.
+
+COMMENT: I don't believe any major or minor tick mark adjustments are needed.
+Europe's highest income is over 3000, and Asia's mortality is over 1000.
+I don't believe we need to scale up or down our tick marks to effectively present
+this data, especially since we are using log10 transform. However, I like using 
+the scale command after we set the un-adjusted x and y axises, because it feels
+much more modular
+```{r}
+
+ggplot( infmort, aes( x = mortality, y = income, color = oil)) +
+  geom_point(size = 3) +
+  facet_wrap(~region) +
+  scale_x_log10() + 
+  scale_y_log10() 
+  #scale_x_continuous( breaks=seq(0, 1000, by=100), minor_breaks=0:1000)
+```
+
+
+d) The package ggrepel contains functions geom_text_repel() and geom_label_repel() that mimic the basic geom_text() and geom_label() functions in ggplot2, but work to make sure the labels don’t overlap. Select 10-15 countries to label and do so using the geom_text_repel() function.
+```{r}
+library(ggrepel)
+selected_countries <- sample(infmort$country, 15)
+selected_data <- infmort[infmort$country %in% selected_countries, ]
+head(selected_data)
+
+ggplot( infmort, aes( x = mortality, y = income, color = oil)) +
+  geom_point(size = 3) +
+  geom_text_repel(data = selected_data, aes(label = country),
+                  size = 3.2, box.padding = 0.5) +
+  facet_wrap(~region) +
+  scale_x_log10() + 
+  scale_y_log10() 
+
+```
+
+## (2) Exercise 2 – 7 pts
+Using the datasets::trees data, complete the following:
+
+a) Create a regression model for  y= Volume as a function of  x = Height.
+```{r}
+model <- lm(Volume ~ Height, trees)
+```
+
+
+b) Using the summary command, get the y-intercept and slope of the regression line.
+```{r}
+summary(model)
+
+intercept <- coef(model)[1]
+slope <- coef(model)[2]
+```
+
+c) Using ggplot2, create a scatter plot of Volume vs Height.
+
+```{r}
+P <- ggplot( trees, aes(x = Height, y=Volume) ) + geom_point()
+P
+```
+
+d) Create a nice white filled rectangle to add text information to using by adding the following annotation layer.
+```{r}
+NP <- P + annotate('rect', xmin=65, xmax=75, ymin=60, ymax=74,
+         fill='white', color='black',)
+NP 
+```
+
+e) Add some annotation text to write the equation of the line  <equation in book>  in the text area.
+```{r}
+lm_line = "Yi = -87.12 + 1.54 * xi"
+NP <- NP + annotate("text", x = 70, y = 67, label = lm_line, col = "black", cex = 6)
+NP
+```
+
+f) Add annotation to add R2 = 0.358
+```{r}
+NP <- NP + annotate("text", x = 70, y = 62, label = "R2 = 0.358", col = "black", cex = 3.7)
+NP
+```
+
+g) Add the regression line in red. The most convenient layer function to uses is geom_abline(). It appears that the annotate doesn’t work with geom_abline() so you’ll have to call it directly
+```{r}
+LMP <- NP +
+      geom_abline(intercept = intercept, slope = slope, color = "red")
+LMP
+```
+
+
+(3) Exercise 3 – Skip: Come back to it later if you are interested.
+
+(7) Turned in by the due date/time – 2 points. More than a week late = 0 points for the
+assignment

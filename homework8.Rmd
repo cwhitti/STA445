@@ -1,0 +1,115 @@
+---
+title: "homework8"
+author: "Claire Whittington"
+date: "2023-11-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(rvest)     # rvest is not loaded in the tidyverse Metapackage
+})
+```
+
+## (1) Exercise 1 – 6 pts
+At the Insurance Institute for Highway Safety, they have data about human fatalities in vehicle crashes. From this web page, import the data from the Fatal Crash Totals data table and produce a bar graph gives the number of deaths per 100,000 individuals. 
+
+Be sure to sort the states by highest to lowest mortality. 
+
+Hint: If you have a problem with the graph being too squished vertically, you can set the chunk options fig.height or fig.width to make the graph larger, but keeping the font sizes the same. The result is that the text is more spread apart. 
+
+The chunk options out.height and out.width shrink or expand everything in the plot. By making the fix.XXX options large and out.XXX options small, you are effectively decreasing the font size of all the elements in the graph. 
+
+The other trick is to reset the font size using a theme element_text option: theme(text = element_text(size = 9)).
+```{r}
+url = "https://www.iihs.org/topics/fatality-statistics/detail/state-by-state"
+
+page = read_html(url)
+
+tables <- page %>%
+  html_nodes('table')
+
+fatalities <- tables %>% 
+  .[[1]] %>% 
+  html_table(header=FALSE, fill=TRUE) %>%
+  .[-1,] %>%
+  magrittr::set_colnames(as.vector(.[1,])) %>%
+  .[-1,]
+
+Death1000 <- fatalities %>% select(1, 6)
+
+Death1000 %>% as_tibble()
+```
+
+```{r}
+Death1000 <- Death1000 %>%
+  select(State, "Deaths per 100,000 population") %>%
+  mutate_at( vars( matches('Deaths')), as.numeric) # convert to numbers
+
+Death1000 <- Death1000 %>%
+  rename(Deaths_per_100k = "Deaths per 100,000 population")
+
+Death1000
+```
+
+```{r}
+# Bar graph
+Death1000 %>%
+  mutate( State = fct_reorder(State, Deaths_per_100k) ) %>%
+  ggplot(., aes(x = State, y = Deaths_per_100k, fill = State)) +
+  geom_col(fill = "lightblue") +
+  labs(title = "Deaths per 100,000 Population by State",
+       x = "State",
+       y = "Deaths per 100,000 Population") +
+  coord_flip() +
+  theme(text = element_text(size = 8))  
+```
+
+## (2) Exercise 2 – 7 pts
+
+From the same IIHS website, import the data about seat belt use. 
+
+Join the Fatality data with the seat belt use and make a scatter plot of percent 
+seat belt use vs number of fatalities per 100,000 people
+
+```{r}
+url = "https://www.iihs.org/topics/fatality-statistics/detail/state-by-state"
+
+page = read_html(url)
+
+tables <- page %>%
+  html_nodes('table')
+
+restraint <- tables %>% 
+  .[[5]] %>% 
+  html_table(header=FALSE, fill=TRUE) %>%
+  .[-1,] %>%
+  .[- c(1:2),] %>%
+  select( c(1,2 ) )
+
+colnames(restraint)[1] <- "State"
+colnames(restraint)[2] <- "Percent_Usage"
+  
+restraint <- restraint %>%
+  select(c(1,2)) %>%
+  mutate_at( vars( matches('Percent_Usage')), as.numeric) # convert to numbers
+
+combined <- inner_join(restraint, Death1000, by=c("State" = "State"))
+
+```
+
+```{r}
+model = lm( Deaths_per_100k ~ Percent_Usage, combined)
+ggplot(combined, aes(x = Percent_Usage, y = Deaths_per_100k)) +
+  geom_point()
+
+summary(model)
+```
+(3) Exercise 3 – Skip: Come back to it later if you are interested.
+
+(7) Turned in by the due date/time – 2 points. More than a week late = 0 points for the
+assignment
+
