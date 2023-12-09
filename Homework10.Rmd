@@ -1,0 +1,173 @@
+---
+title: "Homework10"
+author: "Claire Whittington"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+library(RSQLite)
+library(DBI)         # DataBase Interface Package
+library(dbplyr)      # dplyr with databases!
+library(dplyr)
+```
+
+## Ch 19
+
+# (1) Exercise 1 -- 4 pts
+
+a - Create a SQLite database and connect to it using the following code
+
+```{r}
+library(dplyr)
+library(dbplyr)
+# Start up a SQL-Lite database with the NYCFlights13 data pre-loaded
+con <- dbplyr::nycflights13_sqlite( )
+```
+
+b - Through the con connection object, create links to the flights and airlines tables using the tbl command. DO NOT import the complete flights table. We want to delay downloading the data from the database as long as possible!
+
+```{r}
+# Create links to the flights and airlines tables
+flights_tbl <- tbl(con, "flights")
+airlines_tbl <- tbl(con, "airlines")
+
+head(flights_tbl)
+```
+
+c - From the flights table, summarize the percent of flights with a departure delayed by more than 10 minutes for each airline. Hint: make a new column of TRUE/FALSE or 1/0 values that indicate if the flight was late. Then take the average of that column. Produce a table that gives the airline name (not the abbreviation) and the percent of flights that are late. Notice you can delay the collect() command till the very end of the calculation because most databases can create new columns in ad-hoc table views but these are not saved on the original data table.
+
+```{r}
+# Create a new column indicating if the flight was delayed
+flights_tbl <- flights_tbl %>%
+  mutate(is_delayed = dep_delay > 10)
+
+joined <- left_join(airlines_tbl, flights_tbl)
+
+summary_tbl <- joined %>%
+  select(name, is_delayed) %>%
+  group_by(name) %>%
+  summarize(mean(is_delayed)*100 )
+
+summary_tbl
+```
+
+# d
+
+Using the dbDisconnect() command to close the connection con
+
+```{r}
+dbDisconnect(con)
+```
+
+# (2) Exercise 2 -- 5 pts
+
+I have created a package that contains information for a hypothetical ski pass database that could be used by AZ Snowbowl. This example is inspired by consulting work that I did with Bridger Bowl just outside of Bozeman, MT. We have 5 tables, Customers, PassTypes, Passes, BlackOutDates and PatrolIssues. After downloading the package from GitHub, you should read the documentation for each of these tables. Furthermore, there is a function SkiPasses_sqlite() that loads the information into a SQLite database
+
+```{r}
+#devtools::install_github('dereksonderegger/SkiPasses')
+library(SkiPasses)
+con <- SkiPasses_sqlite(refresh=TRUE)
+```
+
+# a
+
+Go to the GitHub repository for this package at <https://github.com/dereksonderegger/SkiPasses>. Where would you expect the code that creates the data tables to live?
+
+-   I would expect that code to be in the R folder
+
+Where would the documentation for the data tables be?
+
+-   In the README file
+
+Where is the documentation and code for the function SkiPasses_sqlite()?
+
+DOCUMENTATION: in the SkiPasses_sqlite.rd file inside of the man folder
+
+CODE: in the SkiPasses_sqlite.R file inside of the R folder
+
+Notice that there is a SkiPasses.db file in the inst/extdata/ directory. Poke around the package and check out the code for the SkiPasses_sqlite() function. What does the refresh=TRUE option do?
+
+# b
+
+Run the following code to see where the SQLite database file exists on your computer.
+```{r}
+system.file("extdata", "SkiPasses.db", package = "SkiPasses")
+```
+
+# c
+Insert a new row into the Customers data table for yourself. Also insert a row in the Passes table for yourself getting a ski pass for the 2020-2021 ski season. Be sure you are inserting rows into the database tables and not a local version you saved in your R environment.
+
+```{sql, connection=con }
+INSERT INTO Customers (PersonID, GivenName, SurName, StreetAddress, City, State, ZipCode, Gender, Birthday)
+VALUES (1001, 'Claire', 'Whittington', '355 University Dr.', 'Portland', 'Oregon', '97229', 'female', '1990-05-03')
+```
+
+
+```{sql, connection=con, output.var='sql_output'}
+/* This is a SQL code chunk! */
+SELECT * from Customers
+```
+
+```{r}
+sql_output
+```
+# d
+
+Close your database connection and then reopen it. Write a SQL command to verify that you are still in the customer data table
+```{r}
+dbDisconnect(con)
+con <- SkiPasses_sqlite(refresh=TRUE)
+```
+
+```{sql, connection=con, output.var='sql_output'}
+/* This is a SQL code chunk! */
+SELECT * from Customers
+```
+
+```{r}
+sql_output
+```
+# e
+
+Create a function that takes a PassID and date and returns either a TRUE or FALSE value indicating if the pass authorizes the customer to ski for the day. Your function should take the database connection, PassID, and Date as input parameters. The function should ONLY access the database tables through the connection! Try to do as much filtering on the database side as possible to reduce the amount of information being transferred to your function. Demonstrate your function working with both an authorized and unauthorized cases. Hint: read the documentation of the Passes table to understand when a pass is valid. Your code will need to identify if there is a valid pass (ie Date is between Start and Finish) and assuming there is a valid pass, that Date is not one of the blackout dates for that pass.
+
+# (3) Exercise 3 -- 4 pts
+For this exercise, we’ll start a SQLite database and see that the SQLite application stores the data in a very specialized file structure, which usually has a file extension of .db or .sqlite.
+
+# a
+Create the SQLite database file in your current working directory using the following
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "TestSQLiteFile.db")
+
+# Create a table using the iris data
+#dbWriteTable(con, 'IRIS', iris)
+
+dbListTables(con)         # What tables are available...
+dbReadTable(con, "IRIS")  # Spit out the IRIS table
+dbDisconnect(con)         # Close connection
+```
+
+# b
+Now check the files in your current working directory as there should now be a TestSQLiteFile.db. The SQLite file structure for data is extremely stable and works across platform types (Unix/Windows, 32/64 bit, big/little endian, etc).
+As such, it is a good file type choice for storing lots of data in a compact format across different systems (e.g. applications that work on a mobile device vs a computer). While you can open this file using a text editor, you will only see the table declaration of column names and types. The data rows that follow will not be readable
+
+# c
+
+Close the file connection and then reconnect to the database. Confirm that IRIS table is still present in the database.
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "TestSQLiteFile.db")
+
+# Create a table using the iris data
+#dbWriteTable(con, 'IRIS', iris)
+
+dbListTables(con)         # What tables are available...
+dbReadTable(con, "IRIS")  # Spit out the IRIS table
+dbDisconnect(con)         # Close connection
+```
+# d
+When you knit your Rmarkdown document, you might have trouble if you are initializing the database each time you knit the document. To get around this, you could either run your initialization code once by hand and then comment out the initialization steps, or use the eval=FALSE code chunk option. Comment on solution you chose to do.

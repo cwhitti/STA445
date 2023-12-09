@@ -1,0 +1,209 @@
+---
+title: "Final"
+author: "Claire Whittington"
+date: "`r format(Sys.time(),  '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.  (5 pts) Scan the test questions and make sure you have installed the packages you will need. Write the library commands you will need for the test in this R chunk.
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(tidyr)
+```
+
+2.  (5 pts) Download the file starwars.xlsx to your file system. Write an R command to create an R data set called "StarWars" from that file. The result should be a data set with 11 columns and 87 rows. Make sure that missing data is handled properly and that the proper values are loaded as column names. Write str(StarWars) at the end to show that the data has been loaded properly
+
+```{r}
+StarWars <- read_excel("~/Downloads/starwars.xlsx", sheet = "Data", skip = 2)
+str(StarWars)
+```
+
+3.  (5 pts) Create a scatterplot of height (x) v.s. mass (y). Filter the data so that characters with missing masses or heights are removed. Include an appropriate title to the graph.
+
+```{r}
+complete_cases <- StarWars[complete.cases(StarWars$height, StarWars$mass), ]
+
+ggplot(StarWars, aes(x=height, y=mass) , ) + geom_point() +
+  labs(title = "Height vs. Mass in StarWars Characters",
+       x = "Height",
+       y = "Mass")
+
+```
+
+
+4.  (5 pts) There is one character that is particularly massive (and not all that tall) making it hard to see the relationship between height and weight. Filter out that character out and redo the graph.
+
+```{r}
+filtered_data <- complete_cases %>%
+  filter( mass < 500)
+
+ggplot(filtered_data, aes(x=height, y=mass) , ) + geom_point() +
+  labs(title = "Height vs. Mass in StarWars Characters",
+       x = "Height",
+       y = "Mass")
+```
+
+5.  (5 pts) You should be able to see an increasing relationship between height and mass. Fit a linear model to the data and save the model object as "HtWtModel". Extract the slope and intercept parameters from the model.
+
+```{r}
+HtWtModel <- lm(mass ~ height, filtered_data)
+
+slope <- coef(HtWtModel)[2]  
+intercept <- coef(HtWtModel)[1]  
+
+cat("Slope:", slope, "\n")
+cat("Intercept:", intercept, "\n")
+```
+
+6.  (10 pts) Add the model fitted values to the StarWars data frame along with the regression model confidence intervals. Create a scatterplot With the fitted line and confidence band displayed.
+
+```{r}
+StarWars$FittedValues <- predict( HtWtModel, newdata = StarWars ) 
+StarWars$CI_Lower <- predict( HtWtModel, newdata = StarWars, interval = "confidence" )[, "lwr"]
+StarWars$CI_Upper <- predict( HtWtModel, newdata = StarWars, interval = "confidence" )[, "upr"]
+
+ggplot( StarWars, aes( x = height, y = mass ) ) +
+  geom_point() +
+  geom_line( aes( y = FittedValues ), color = "red" ) +
+  geom_ribbon( aes( ymin = CI_Lower, ymax = CI_Upper ), fill = "red", alpha = 0.2 ) +
+  labs(title = "Height vs. Mass in StarWars Characters",
+       x = "Height",
+       y = "Mass")
+```
+
+7.  (10 pts) Add a column to your StarWars data set that contains the characters height in inches (cm\*.393701 = in). Produce a table that shows the average height in inches for each gender as well as the number of characters present in the data for each gender. Make sure to filter out rows that have missing height and missing gender.
+
+```{r}
+filtered <- StarWars[complete.cases(StarWars$height, StarWars$gender), ]
+
+# Add a column to your StarWars data set that contains the characters height in inches
+inch_in_cm <- .393701
+filtered <- filtered %>%
+  mutate(height_in_inches = height * inch_in_cm)
+
+str(filtered)
+
+# Produce a table that shows the average height in inches for each gender as well as the number of characters present in the data for each gender. 
+result_table <- filtered %>%
+  group_by(gender) %>%
+  summarize(
+    avg_height_inches = mean(height_in_inches),
+    num_characters = n() )
+
+result_table
+```
+
+8.  (5 pts) Compare heights of masculine and feminine characters by creating two histograms of the height in inches using faceting.
+
+```{r}
+ggplot(filtered, aes(x = height_in_inches, fill = gender)) +
+  geom_histogram() +
+  facet_wrap(~gender)
+```
+
+9.  (5 pts) You are thinking of doing some analysis using hair color. Unfortunately the are a few characters who have two hair colors separated by a comma. I think the color after the comma is the color of the hair after they have aged. I want to get rid of the part after the comma and retain the younger hair color. Use mutate, stringr functions, and regular expressions to alter the hair color column so that just one hair color is listed for each character.
+
+```{r}
+StarWars <- StarWars %>%
+  mutate(hair_color = str_replace(hair_color, ",.*", ""))
+
+# "," matches the comma in the string.
+
+# .* matches any character (.) zero or more times (*) 
+# for everything aftre the comma
+str(StarWars)
+```
+
+10. (5 pts) In the metadata for the Star Wars data, the birth year is explained to be the number of years before the battle of Yavin. For this exercise, we will assume that the battle of Yavin occurred December 7th, 1999. Create a DateOfBirth Column in the StarWars dataset giving the date of birth for each character that has a birth_year listed.
+
+```{r}
+battle_of_yavin_date <- ymd("1999-12-07")
+
+StarWars <- StarWars %>%
+  mutate(
+    DateOfBirth = battle_of_yavin_date - years( as.integer(birth_year) ) )
+# why does R make me cast birth_year as an integer?
+# why doesn't it like doubles?
+str(StarWars)
+```
+
+11. (5 pts) Download the file orders.xls and create a data frame called "orders". This table lists the taxonomic orders for the species present in the StarWars data. Use a join to add the orders to the StarWars data set as an additional column. Be sure to show mw the resulting data set with the additional orders column.
+
+```{r}
+Orders <- read_excel("~/Downloads/orders.xlsx")
+str(Orders)
+
+StarWars <- left_join(StarWars, Orders, by = "species")
+str(StarWars)
+```
+
+12. (10 pts) Download and create a dataframe from the file UKGDP.csv. This data contains Monthly GDP figures for the United Kingdom (Billions of pounds). Create a dataframe from this data that contains three columns: Year, Month, and GDP. Create a graph that shows the monthly GDP over time.
+
+```{r}
+UKGDP <- read.csv("~/Downloads/UKGDP.csv")
+
+month_order <- c("January", "February", "March", "April", "May", "June", 
+                 "July", "August", "September", "October", "November", "December")
+
+UKGDP_long <- gather(UKGDP, key = "Month", value = "GDP", -Year) %>%
+  mutate(Month = factor(Month, levels = month_order))
+
+str(UKGDP_long)
+ggplot(UKGDP_long, aes(x = Month, y = GDP, group = Year, color = Year )  ) +
+  geom_line()
+```
+
+13. (15 pts) The function rnorm() simulates the selection of a random sample from a normal population. For example, rnorm(40,20,3) will produce a vector of 40 values randomly drawn from a population that is normally distributed with mean 20 and standard deviation 3. Write some code to find out how likely it is that a sample mean is larger than 21 if it is calculated from a random sample of size 40 drawn from a normally distributed population with mean 20 and standard deviation 3? Hint: Use a loop to create a thousand random samples and for each test to see if the sample mean turns out greater than 21. What proportion were greater than 21?
+
+```{r}
+sims <- 1000
+over_21 <- 0
+
+for (i in 1:sims) 
+  {
+  random_sample <- rnorm(40, 20, 3)
+  sample_mean <- mean(random_sample)
+
+  if (sample_mean > 21) 
+    {
+     over_21 = over_21 + 1
+    }
+  }
+
+cat("Proportion of sample means greater than 21:", over_21 / sims, "\n")
+```
+
+14. (10 pts) Use your code from 13 to create a function that allows the user to input the sample size, mean, standard deviation and comparison value and outputs the estimated probability.
+
+```{r}
+est_prob <- function(p_size, p_mean, p_sd, threshhold)
+{
+  over_thresh <- 0
+  sims <- 1000
+  
+  for (i in 1:sims) 
+  {
+  random_sample <- rnorm(p_size, p_mean, p_sd)
+  sample_mean <- mean(random_sample)
+
+  if (sample_mean > threshhold) 
+    {
+     over_thresh = over_thresh + 1
+    }
+  }
+  cat("Proportion of sample means greater than 21:", over_thresh / sims, "\n")
+}
+
+est_prob(40, 20, 3, 21)
+```
